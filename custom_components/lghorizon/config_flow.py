@@ -42,12 +42,20 @@ async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str,
         telenet_identifier = None
         if CONF_IDENTIFIER in data:
             telenet_identifier = data[CONF_IDENTIFIER]
-        api = LGHorizonApi(
+            api = LGHorizonApi(
             data[CONF_USERNAME],
             data[CONF_PASSWORD],
             COUNTRY_CODES[data[CONF_COUNTRY_CODE]],
             telenet_identifier,
-        )
+            )
+        else:
+            api = LGHorizonApi(
+                data[CONF_USERNAME],
+                data[CONF_PASSWORD],
+                COUNTRY_CODES[data[CONF_COUNTRY_CODE]],
+            )
+        await hass.async_add_executor_job(api.connect)
+        await hass.async_add_executor_job(api.disconnect)
         await hass.async_add_executor_job(api.connect)
         await hass.async_add_executor_job(api.disconnect)
     except LGHorizonApiUnauthorizedError:
